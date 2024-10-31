@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Audio Generator - Dark Theme</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Dark Theme Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e91e63;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #aaaaaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e91e63;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d81b60;
+        }
+
+        #loading {
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+            color: #f5f5f5;
+        }
+
+        #download-link {
+            text-align: center;
+            display: block;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #ffffff;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        #download-link:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenAI Audio Generator</h1>
+        <label for="api-key">OpenAI API Key:</label>
+        <input type="text" id="api-key" placeholder="Enter OpenAI API Key">
+
+        <label for="voice">Select Voice:</label>
+        <select id="voice">
+            <option value="alloy">Alloy</option>
+            <option value="echo">Echo</option>
+            <option value="fable">Fable</option>
+            <option value="onyx">Onyx</option>
+            <option value="nova">Nova</option>
+            <option value="shimmer">Shimmer</option>
+        </select>
+
+        <label for="script">Script:</label>
+        <textarea id="script" placeholder="Enter your script here" rows="5"></textarea>
+
+        <button onclick="generateAudio()">Generate Audio</button>
+
+        <!-- <p id="loading">Audio is being created...</p> -->
+        <a id="download-link" href="" download="generated_audio.mp3">Download Audio</a>
+    </div>
+
+    <script>
+        async function generateAudio() {
+            // Get user inputs
+            const apiKey = document.getElementById("api-key").value;
+            const voice = document.getElementById("voice").value;
+            const script = document.getElementById("script").value;
+
+            if (!apiKey || !script) {
+                alert("Please enter both an API key and a script.");
+                return;
+            }
+
+            // Display loading message
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("download-link").style.display = "none";
+
+            // Prepare request data
+            const endpoint = "https://api.openai.com/v1/audio/speech";  // Hypothetical endpoint
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            };
+            const body = JSON.stringify({
+                model: "tts-1",
+                voice: voice,
+                input: script
+            });
+
+            try {
+                // Make API request
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: headers,
+                    body: body
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error generating audio.");
+                }
+
+                // Convert response to Blob to create downloadable link
+                const audioBlob = await response.blob();
+
+                // Create a download link for the audio
+                const downloadUrl = URL.createObjectURL(audioBlob);
+                const downloadLink = document.getElementById("download-link");
+                downloadLink.href = downloadUrl;
+                downloadLink.style.display = "block";
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Failed to generate audio. Please check your API key and try again.");
+            } finally {
+                // Hide loading message
+                document.getElementById("loading").style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
